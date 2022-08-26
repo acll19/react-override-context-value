@@ -1,25 +1,43 @@
-import logo from './logo.svg';
+import React, { useContext, useState } from 'react';
 import './App.css';
+
+const AppContext = React.createContext({ groups: [] });
+const NestedContext = React.createContext({ groups: [] });
+
+const AppProvider = props => {
+  const [groups] = useState([1, 2, 3, 4, 5])
+  return (
+    <AppContext.Provider value={{ groups }}>
+      {props.children}
+    </AppContext.Provider>
+  )
+};
+
+const NestedProvider = props => {
+  const { groups } = useContext(AppContext);
+  const compassGroups = Object.assign(groups.filter(g => g <= 4))
+  return (
+    <NestedContext.Provider value={{ groups: compassGroups }}>
+      {props.children}
+    </NestedContext.Provider>
+  )
+};
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AppProvider>
+      <NestedProvider>
+        <GroupList />
+      </NestedProvider>
+    </AppProvider>
   );
 }
+
+const GroupList = () => {
+  const { groups } = useContext(NestedContext);
+  return (
+    <div>Groups {groups.map(g => `group: ${g}, `)}</div>
+  )
+};
 
 export default App;
